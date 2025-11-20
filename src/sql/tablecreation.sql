@@ -20,17 +20,19 @@ description text
 );
 
 
-CREATE TABLE gov_website(
-website_id INT PRIMARY KEY auto_increment,
-name varchar(100) unique not null,
-url varchar(255) not null,
-FOREIGN KEY (department_id) REFERENCES department(department_id),
-FOREIGN KEY (district_id) REFERENCES district(district_id),
-FOREIGN KEY (topic_id) REFERENCES topic(topic_id)
+CREATE TABLE gov_website (
+    website_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    url VARCHAR(255) NOT NULL,
+    department_id INT,
+    district_id INT,         
+    topic_id INT,            
+    FOREIGN KEY (department_id) REFERENCES department(department_id),
+    FOREIGN KEY (district_id) REFERENCES district(district_id),
+    FOREIGN KEY (topic_id) REFERENCES topic(topic_id)
 );
 
 
-SHOW TABLES;
 
 
 
@@ -39,3 +41,5 @@ id INT PRIMARY KEY auto_increment,
 name text
 
 );
+
+SHOW TABLES;
