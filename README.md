@@ -6,11 +6,13 @@ One Paragraph of project description goes here
 
 1) Create a file at the project root called '.env'
 2) Update the file with the following fields:
+```
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD= //whatever your MySQL Workbench root password is
 DB_NAME=Comp267
 API_URL=http://127.0.0.1:5000
+```
 
 3) Find the mysql script under src/sql/tablecreation.sql and use it to create a DB in MySQL Workbench
 4) Run the following commands, one terminal for each command
