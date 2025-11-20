@@ -4,7 +4,23 @@ One Paragraph of project description goes here
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+1) Create a file at the project root called '.env'
+2) Update the file with the following fields:
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD= //whatever your MySQL Workbench root password is
+DB_NAME=Comp267
+API_URL=http://127.0.0.1:5000
+
+3) Find the mysql script under src/sql/tablecreation.sql and use it to create a DB in MySQL Workbench
+4) Run the following commands, one terminal for each command
+```
+src\api\db_api.py
+```
+In a different terminal run:
+```
+src\main.py
+```
 
 ### Prerequisites
 
