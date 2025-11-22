@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from api import database
 
+
 bp = Blueprint('routes', __name__)
 
 # GET all tables
@@ -68,7 +69,7 @@ def insert_into_table(table_name):
         column_list = ", ".join(columns)
         placeholders = ", ".join(["%s"] * len(columns))
 
-        sql = f"INSERT INTO {table_name} ({column_list}) VALUES ({placeholders})"
+        sql = f"INSERT IGNORE INTO {table_name} ({column_list}) VALUES ({placeholders})"
 
         cursor.executemany(sql, rows)
 

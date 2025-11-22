@@ -3,13 +3,14 @@ import tkinter.messagebox as tkmb
 from tkinter import Menu
 import customtkinter as ctk
 from api.app import app as api_app
+from api import database
 
 # Windows
 app = ctk.CTk()
 app.geometry("400x400")
 app.title("Government Website Database Landing")
-app.attributes("-topmost", 1)
-app.attributes("-fullscreen", True)
+#app.attributes("-topmost", 1)
+#app.attributes("-fullscreen", True)
 
 # sanple API request
 with api_app.test_client() as client:
@@ -87,6 +88,96 @@ def insert_data():
     create_window = ctk.CTkToplevel(app)
     create_window.title("Insert into Database")
     create_window.attributes("-fullscreen", True)
+
+    # Frames inside the create window to avoid touching the main `app`
+    top_frame = ctk.CTkFrame(master=create_window)
+    top_frame.pack(fill="x", pady=10, padx=10)
+    middle_frame = ctk.CTkFrame(master=create_window)
+    middle_frame.pack(fill="both", expand=True, pady=10, padx=10)
+    bottom_frame = ctk.CTkFrame(master=create_window)
+    bottom_frame.pack(fill="x", pady=10, padx=10)
+
+    # Dictionary of tables with associated columns
+    tables = {
+        "department": [
+            "department_id",
+            "name",
+            "description"
+        ],
+        "district": [
+            "district_id",
+            "name",
+            "description"
+        ],
+        "topic": [
+            "topic_id",
+            "name",
+            "description"
+        ],
+        "gov_website": [
+            "website_id",
+            "name",
+            "url",
+            "department_id",
+            "district_id",
+            "topic_id"
+        ]
+    }
+
+    selected_table = ctk.StringVar(value="Select a table")
+
+    table_dropdown = ctk.CTkComboBox(
+        master=top_frame,
+        values=list(tables.keys()),
+        variable=selected_table,
+        width=300,
+        command=lambda _=None: show_columns()
+    )
+    table_dropdown.pack(pady=10)
+
+    checkbox_vars = {}
+
+    def show_columns():
+        # Clear previous column widgets inside the middle frame
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        # Clear any previous bottom frame buttons
+        for widget in bottom_frame.winfo_children():
+            widget.destroy()
+
+        table = selected_table.get()
+        checkbox_vars.clear()
+
+        for col in tables.get(table, []):
+            var = ctk.BooleanVar(value=False)
+            checkbox_vars[col] = var
+            cb = ctk.CTkCheckBox(master=middle_frame, text=col, variable=var)
+            cb.pack(anchor="w", pady=2)
+
+        # Add a button to generate the text box view
+        create_btn = ctk.CTkButton(master=bottom_frame, text="Create Text Box", command=create_text_box)
+        create_btn.pack(pady=10)
+
+    def create_text_box():
+        # Replace middle_frame contents with a read-only textbox showing selections
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        txt = ctk.CTkTextbox(master=middle_frame, width=500, height=200)
+        txt.pack(pady=10)
+
+        selected_cols = [col for col, v in checkbox_vars.items() if v.get()]
+
+        txt.insert("end", f"Selected Table: {selected_table.get()}\n\n")
+        txt.insert("end", "Columns Selected:\n")
+        txt.insert("end", "-" * 40 + "\n")
+
+        for col in selected_cols:
+            txt.insert("end", f"• {col}\n")
+
+        txt.configure(state="disabled")
+
 
 # WIDGETS
 # Login Window
