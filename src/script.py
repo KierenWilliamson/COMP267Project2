@@ -1,15 +1,8 @@
+import os
 import tkinter.messagebox as tkmb
 from tkinter import Menu
 import customtkinter as ctk
-from dotenv import load_dotenv
-import requests, os
-
-load_dotenv()
-API_URL = os.getenv("API_URL")
-
-
-# response = requests.get(f"{API_URL}/tables")
-# print(response.json())
+from api.app import app as api_app
 
 # Windows
 app = ctk.CTk()
@@ -17,6 +10,11 @@ app.geometry("400x400")
 app.title("Government Website Database Landing")
 app.attributes("-topmost", 1)
 app.attributes("-fullscreen", True)
+
+# sanple API request
+with api_app.test_client() as client:
+    response = client.get("/tables")
+    print(response.get_json())
 
 # COMMANDS / FUNCTIONS
 def login():
