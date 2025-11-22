@@ -1,6 +1,6 @@
 import tkinter.messagebox as tkmb
-import customtkinter as ctk
 from tkinter import Menu
+import customtkinter as ctk
 from dotenv import load_dotenv
 import requests, os
 
@@ -68,7 +68,7 @@ def create_dashboard():
     dash_file_menu.add_separator()
     dash_option_menu.add_cascade(label="File", menu=dash_file_menu)
 
-    create_button = ctk.CTkButton(dashboard_frame, text="CREATE", command=lambda: [dashboard_window.withdraw(), insert_data()])
+    create_button = ctk.CTkButton(dashboard_frame,text="CREATE", command=lambda: [dashboard_window.withdraw(), insert_data()])
     create_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
     read_button = ctk.CTkButton(dashboard_frame, text="READ")
     read_button.grid(row=1, column=2, padx=5, pady=5, sticky="nsew")

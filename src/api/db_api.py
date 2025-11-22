@@ -1,6 +1,6 @@
-import mysql.connector
 import os
-from flask import Flask, request, jsonify
+import mysql.connector
+from flask import Flask, jsonify
 from dotenv import load_dotenv
 
 # load .env file
