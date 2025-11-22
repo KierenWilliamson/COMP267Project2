@@ -70,15 +70,15 @@ def create_dashboard():
 
     create_button = ctk.CTkButton(dashboard_frame,text="CREATE", command=lambda: [dashboard_window.withdraw(), insert_data()])
     create_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
-    read_button = ctk.CTkButton(dashboard_frame, text="READ")
+    read_button = ctk.CTkButton(dashboard_frame, text="READ",command=lambda: [dashboard_window.withdraw(), read_data()])
     read_button.grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
-    update_button = ctk.CTkButton(dashboard_frame, text="UPDATE")
+    update_button = ctk.CTkButton(dashboard_frame, text="UPDATE",command=lambda: [dashboard_window.withdraw(), update_data()])
     update_button.grid(row=1, column=3, padx=5, pady=5, sticky="nsew")
-    delete_button = ctk.CTkButton(dashboard_frame, text="DELETE")
+    delete_button = ctk.CTkButton(dashboard_frame, text="DELETE", command=lambda: [dashboard_window.withdraw(), delete_data()])
     delete_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
-    report_button = ctk.CTkButton(dashboard_frame, text="GENERATE REPORTS")
+    report_button = ctk.CTkButton(dashboard_frame, text="GENERATE REPORTS", command=lambda: [dashboard_window.withdraw(), generate_reports()])
     report_button.grid(row=2, column=2, padx=5, pady=5, sticky="nsew")
-    website_button = ctk.CTkButton(dashboard_frame, text="LIST WEBSITES")
+    website_button = ctk.CTkButton(dashboard_frame, text="LIST WEBSITES", command=lambda: [dashboard_window.withdraw(), list_websites()])
     website_button.grid(row=2, column=3, padx=5, pady=5, sticky="nsew")
 
 def insert_data():
@@ -177,6 +177,523 @@ def insert_data():
             txt.insert("end", f"• {col}\n")
 
         txt.configure(state="disabled")
+
+def read_data():
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
+
+    # Frames inside the create window to avoid touching the main `app`
+    top_frame = ctk.CTkFrame(master=create_window)
+    top_frame.pack(fill="x", pady=10, padx=10)
+    middle_frame = ctk.CTkFrame(master=create_window)
+    middle_frame.pack(fill="both", expand=True, pady=10, padx=10)
+    bottom_frame = ctk.CTkFrame(master=create_window)
+    bottom_frame.pack(fill="x", pady=10, padx=10)
+
+    # Dictionary of tables with associated columns
+    tables = {
+        "department": [
+            "department_id",
+            "name",
+            "description"
+        ],
+        "district": [
+            "district_id",
+            "name",
+            "description"
+        ],
+        "topic": [
+            "topic_id",
+            "name",
+            "description"
+        ],
+        "gov_website": [
+            "website_id",
+            "name",
+            "url",
+            "department_id",
+            "district_id",
+            "topic_id"
+        ]
+    }
+
+    selected_table = ctk.StringVar(value="Select a table")
+
+    table_dropdown = ctk.CTkComboBox(
+        master=top_frame,
+        values=list(tables.keys()),
+        variable=selected_table,
+        width=300,
+        command=lambda _=None: show_columns()
+    )
+    table_dropdown.pack(pady=10)
+
+    checkbox_vars = {}
+
+    def show_columns():
+        # Clear previous column widgets inside the middle frame
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        # Clear any previous bottom frame buttons
+        for widget in bottom_frame.winfo_children():
+            widget.destroy()
+
+        table = selected_table.get()
+        checkbox_vars.clear()
+
+        for col in tables.get(table, []):
+            var = ctk.BooleanVar(value=False)
+            checkbox_vars[col] = var
+            cb = ctk.CTkCheckBox(master=middle_frame, text=col, variable=var)
+            cb.pack(anchor="w", pady=2)
+
+        # Add a button to generate the text box view
+        create_btn = ctk.CTkButton(master=bottom_frame, text="Create Text Box", command=create_text_box)
+        create_btn.pack(pady=10)
+
+    def create_text_box():
+        # Replace middle_frame contents with a read-only textbox showing selections
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        txt = ctk.CTkTextbox(master=middle_frame, width=500, height=200)
+        txt.pack(pady=10)
+
+        selected_cols = [col for col, v in checkbox_vars.items() if v.get()]
+
+        txt.insert("end", f"Selected Table: {selected_table.get()}\n\n")
+        txt.insert("end", "Columns Selected:\n")
+        txt.insert("end", "-" * 40 + "\n")
+
+        for col in selected_cols:
+            txt.insert("end", f"• {col}\n")
+
+        txt.configure(state="disabled")
+
+def update_data():
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
+
+    # Frames inside the create window to avoid touching the main `app`
+    top_frame = ctk.CTkFrame(master=create_window)
+    top_frame.pack(fill="x", pady=10, padx=10)
+    middle_frame = ctk.CTkFrame(master=create_window)
+    middle_frame.pack(fill="both", expand=True, pady=10, padx=10)
+    bottom_frame = ctk.CTkFrame(master=create_window)
+    bottom_frame.pack(fill="x", pady=10, padx=10)
+
+    # Dictionary of tables with associated columns
+    tables = {
+        "department": [
+            "department_id",
+            "name",
+            "description"
+        ],
+        "district": [
+            "district_id",
+            "name",
+            "description"
+        ],
+        "topic": [
+            "topic_id",
+            "name",
+            "description"
+        ],
+        "gov_website": [
+            "website_id",
+            "name",
+            "url",
+            "department_id",
+            "district_id",
+            "topic_id"
+        ]
+    }
+
+    selected_table = ctk.StringVar(value="Select a table")
+
+    table_dropdown = ctk.CTkComboBox(
+        master=top_frame,
+        values=list(tables.keys()),
+        variable=selected_table,
+        width=300,
+        command=lambda _=None: show_columns()
+    )
+    table_dropdown.pack(pady=10)
+
+    checkbox_vars = {}
+
+    def show_columns():
+        # Clear previous column widgets inside the middle frame
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        # Clear any previous bottom frame buttons
+        for widget in bottom_frame.winfo_children():
+            widget.destroy()
+
+        table = selected_table.get()
+        checkbox_vars.clear()
+
+        for col in tables.get(table, []):
+            var = ctk.BooleanVar(value=False)
+            checkbox_vars[col] = var
+            cb = ctk.CTkCheckBox(master=middle_frame, text=col, variable=var)
+            cb.pack(anchor="w", pady=2)
+
+        # Add a button to generate the text box view
+        create_btn = ctk.CTkButton(master=bottom_frame, text="Create Text Box", command=create_text_box)
+        create_btn.pack(pady=10)
+
+    def create_text_box():
+        # Replace middle_frame contents with a read-only textbox showing selections
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        txt = ctk.CTkTextbox(master=middle_frame, width=500, height=200)
+        txt.pack(pady=10)
+
+        selected_cols = [col for col, v in checkbox_vars.items() if v.get()]
+
+        txt.insert("end", f"Selected Table: {selected_table.get()}\n\n")
+        txt.insert("end", "Columns Selected:\n")
+        txt.insert("end", "-" * 40 + "\n")
+
+        for col in selected_cols:
+            txt.insert("end", f"• {col}\n")
+
+        txt.configure(state="disabled")       
+
+
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
+
+def delete_data():
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
+
+    # Frames inside the create window to avoid touching the main `app`
+    top_frame = ctk.CTkFrame(master=create_window)
+    top_frame.pack(fill="x", pady=10, padx=10)
+    middle_frame = ctk.CTkFrame(master=create_window)
+    middle_frame.pack(fill="both", expand=True, pady=10, padx=10)
+    bottom_frame = ctk.CTkFrame(master=create_window)
+    bottom_frame.pack(fill="x", pady=10, padx=10)
+
+    # Dictionary of tables with associated columns
+    tables = {
+        "department": [
+            "department_id",
+            "name",
+            "description"
+        ],
+        "district": [
+            "district_id",
+            "name",
+            "description"
+        ],
+        "topic": [
+            "topic_id",
+            "name",
+            "description"
+        ],
+        "gov_website": [
+            "website_id",
+            "name",
+            "url",
+            "department_id",
+            "district_id",
+            "topic_id"
+        ]
+    }
+
+    selected_table = ctk.StringVar(value="Select a table")
+
+    table_dropdown = ctk.CTkComboBox(
+        master=top_frame,
+        values=list(tables.keys()),
+        variable=selected_table,
+        width=300,
+        command=lambda _=None: show_columns()
+    )
+    table_dropdown.pack(pady=10)
+
+    checkbox_vars = {}
+
+    def show_columns():
+        # Clear previous column widgets inside the middle frame
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        # Clear any previous bottom frame buttons
+        for widget in bottom_frame.winfo_children():
+            widget.destroy()
+
+        table = selected_table.get()
+        checkbox_vars.clear()
+
+        for col in tables.get(table, []):
+            var = ctk.BooleanVar(value=False)
+            checkbox_vars[col] = var
+            cb = ctk.CTkCheckBox(master=middle_frame, text=col, variable=var)
+            cb.pack(anchor="w", pady=2)
+
+        # Add a button to generate the text box view
+        create_btn = ctk.CTkButton(master=bottom_frame, text="Create Text Box", command=create_text_box)
+        create_btn.pack(pady=10)
+
+    def create_text_box():
+        # Replace middle_frame contents with a read-only textbox showing selections
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        txt = ctk.CTkTextbox(master=middle_frame, width=500, height=200)
+        txt.pack(pady=10)
+
+        selected_cols = [col for col, v in checkbox_vars.items() if v.get()]
+
+        txt.insert("end", f"Selected Table: {selected_table.get()}\n\n")
+        txt.insert("end", "Columns Selected:\n")
+        txt.insert("end", "-" * 40 + "\n")
+
+        for col in selected_cols:
+            txt.insert("end", f"• {col}\n")
+
+        txt.configure(state="disabled")
+
+
+
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
+
+def generate_reports():
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
+
+    # Frames inside the create window to avoid touching the main `app`
+    top_frame = ctk.CTkFrame(master=create_window)
+    top_frame.pack(fill="x", pady=10, padx=10)
+    middle_frame = ctk.CTkFrame(master=create_window)
+    middle_frame.pack(fill="both", expand=True, pady=10, padx=10)
+    bottom_frame = ctk.CTkFrame(master=create_window)
+    bottom_frame.pack(fill="x", pady=10, padx=10)
+
+    # Dictionary of tables with associated columns
+    tables = {
+        "department": [
+            "department_id",
+            "name",
+            "description"
+        ],
+        "district": [
+            "district_id",
+            "name",
+            "description"
+        ],
+        "topic": [
+            "topic_id",
+            "name",
+            "description"
+        ],
+        "gov_website": [
+            "website_id",
+            "name",
+            "url",
+            "department_id",
+            "district_id",
+            "topic_id"
+        ]
+    }
+
+    selected_table = ctk.StringVar(value="Select a table")
+
+    table_dropdown = ctk.CTkComboBox(
+        master=top_frame,
+        values=list(tables.keys()),
+        variable=selected_table,
+        width=300,
+        command=lambda _=None: show_columns()
+    )
+    table_dropdown.pack(pady=10)
+
+    checkbox_vars = {}
+
+    def show_columns():
+        # Clear previous column widgets inside the middle frame
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        # Clear any previous bottom frame buttons
+        for widget in bottom_frame.winfo_children():
+            widget.destroy()
+
+        table = selected_table.get()
+        checkbox_vars.clear()
+
+        for col in tables.get(table, []):
+            var = ctk.BooleanVar(value=False)
+            checkbox_vars[col] = var
+            cb = ctk.CTkCheckBox(master=middle_frame, text=col, variable=var)
+            cb.pack(anchor="w", pady=2)
+
+        # Add a button to generate the text box view
+        create_btn = ctk.CTkButton(master=bottom_frame, text="Create Text Box", command=create_text_box)
+        create_btn.pack(pady=10)
+
+    def create_text_box():
+        # Replace middle_frame contents with a read-only textbox showing selections
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        txt = ctk.CTkTextbox(master=middle_frame, width=500, height=200)
+        txt.pack(pady=10)
+
+        selected_cols = [col for col, v in checkbox_vars.items() if v.get()]
+
+        txt.insert("end", f"Selected Table: {selected_table.get()}\n\n")
+        txt.insert("end", "Columns Selected:\n")
+        txt.insert("end", "-" * 40 + "\n")
+
+        for col in selected_cols:
+            txt.insert("end", f"• {col}\n")
+
+        txt.configure(state="disabled")
+
+
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
+
+def list_websites():
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
+
+    # Frames inside the create window to avoid touching the main `app`
+    top_frame = ctk.CTkFrame(master=create_window)
+    top_frame.pack(fill="x", pady=10, padx=10)
+    middle_frame = ctk.CTkFrame(master=create_window)
+    middle_frame.pack(fill="both", expand=True, pady=10, padx=10)
+    bottom_frame = ctk.CTkFrame(master=create_window)
+    bottom_frame.pack(fill="x", pady=10, padx=10)
+
+    # Dictionary of tables with associated columns
+    tables = {
+        "department": [
+            "department_id",
+            "name",
+            "description"
+        ],
+        "district": [
+            "district_id",
+            "name",
+            "description"
+        ],
+        "topic": [
+            "topic_id",
+            "name",
+            "description"
+        ],
+        "gov_website": [
+            "website_id",
+            "name",
+            "url",
+            "department_id",
+            "district_id",
+            "topic_id"
+        ]
+    }
+
+    selected_table = ctk.StringVar(value="Select a table")
+
+    table_dropdown = ctk.CTkComboBox(
+        master=top_frame,
+        values=list(tables.keys()),
+        variable=selected_table,
+        width=300,
+        command=lambda _=None: show_columns()
+    )
+    table_dropdown.pack(pady=10)
+
+    checkbox_vars = {}
+
+    def show_columns():
+        # Clear previous column widgets inside the middle frame
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        # Clear any previous bottom frame buttons
+        for widget in bottom_frame.winfo_children():
+            widget.destroy()
+
+        table = selected_table.get()
+        checkbox_vars.clear()
+
+        for col in tables.get(table, []):
+            var = ctk.BooleanVar(value=False)
+            checkbox_vars[col] = var
+            cb = ctk.CTkCheckBox(master=middle_frame, text=col, variable=var)
+            cb.pack(anchor="w", pady=2)
+
+        # Add a button to generate the text box view
+        create_btn = ctk.CTkButton(master=bottom_frame, text="Create Text Box", command=create_text_box)
+        create_btn.pack(pady=10)
+
+    def create_text_box():
+        # Replace middle_frame contents with a read-only textbox showing selections
+        for widget in middle_frame.winfo_children():
+            widget.destroy()
+
+        txt = ctk.CTkTextbox(master=middle_frame, width=500, height=200)
+        txt.pack(pady=10)
+
+        selected_cols = [col for col, v in checkbox_vars.items() if v.get()]
+
+        txt.insert("end", f"Selected Table: {selected_table.get()}\n\n")
+        txt.insert("end", "Columns Selected:\n")
+        txt.insert("end", "-" * 40 + "\n")
+
+        for col in selected_cols:
+            txt.insert("end", f"• {col}\n")
+
+        txt.configure(state="disabled")
+
+    '''
+    Create a new window and insert data
+    '''
+    create_window = ctk.CTkToplevel(app)
+    create_window.title("Insert into Database")
+    create_window.attributes("-fullscreen", True)
 
 
 # WIDGETS
