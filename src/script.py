@@ -13,7 +13,7 @@ app.attributes("-fullscreen", True)
 
 # sanple API request
 with api_app.test_client() as client:
-    response = client.get("/tables")
+    response = client.get("/websites")
     print(response.get_json())
 
 # COMMANDS / FUNCTIONS
