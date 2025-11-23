@@ -142,29 +142,29 @@ INSERT INTO gov_website (name, url, department_id) VALUES
 
 ('Guilford County Parks Master Plan', 'https://www.guilfordcountync.gov/government/countywide-programs-and-initiatives/parks-master-plan', 2);
 
--- Identity & Authentication
+
 INSERT INTO gov_website (name, url, department_id) VALUES
 ('NC MyNCID Identity Verification', 'https://www.ncdot.gov/dmv/offices-services/online/Pages/myncid-identity-verification.aspx', 14),
 ('NCID Registration & User Guide', 'https://it.nc.gov/ncid-user-guide-individual-business-users', 14),
 
--- Licensing & Permits (Driver ID Renewal)
+
 ('NCDMV Driver License / ID Renewal Online', 'https://www.ncdot.gov/dmv/license-id/renewal-replacement/Pages/license-renewal.aspx', 6),
 
--- Citizen Records & Certificates
+
 ('Guilford County Vital Records – Birth, Death & Marriage Certificates', 'https://www.guilfordcountync.gov/government/register-deeds/vital-records', 15),
 ('Guilford County Death Certificate Request', 'https://www.guilfordcountync.gov/government/register-deeds/vital-records/death-certificates', 15),
 
--- Elections & Civic Participation
+
 ('NCDMV Online Voter Registration Application', 'https://www.ncdot.gov/dmv/offices-services/online/Pages/voter-registration-application.aspx', 6),
 ('How to Register to Vote – N.C. State Board of Elections', 'https://www.ncsbe.gov/registering/how-register', 15),
 
--- Taxes & Finance
+
 ('Guilford County Online Tax Services', 'https://www.guilfordcountync.gov/business/online-tax-services', 17),
 
--- Identity resolution / IT
+
 ('NC eLink Statewide Entity Resolution Tool', 'https://it.nc.gov/programs/nc-government-data-analytics-center/gdac-services/nc-elink', 14);
 
--- Guilford County Websites
+-- Updating Guilford County Websites
 UPDATE gov_website
 SET topic_id = 1
 WHERE name = 'Guilford County Home Page';  -- Public Services
