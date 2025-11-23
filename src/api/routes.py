@@ -57,8 +57,9 @@ def insert_into_table(table_name):
 
         # Get real table columns
         cursor.execute(f"DESCRIBE {table_name}")
-        table_info = cursor.fetchall()
-        valid_columns = [col[0] for col in table_info]
+        # table_info = cursor.fetchall()
+        valid_columns = [col[0] for col in {{cursor.fetchall()}}]
+        cursor.close()
 
         # Ensure client-sent columns exist
         for col in columns:
@@ -71,12 +72,31 @@ def insert_into_table(table_name):
 
         sql = f"INSERT IGNORE INTO {table_name} ({column_list}) VALUES ({placeholders})"
 
-        cursor.executemany(sql, rows)
+        db.cursor().executemany(sql, rows)
 
         db.commit()
-        cursor.close()
 
         return jsonify({"message": f"{cursor.rowcount} rows inserted successfully"})
 
     except Exception as e:
         return jsonify({"error": str(e)})
+
+@bp.route("/select/<table_name>", methods=["GET"])
+def select_table(table_name):
+    '''
+    Performs the operation:\n 
+    SELECT(expression){Table} 
+    '''
+    try:
+        # initialize the database
+        db = database.init_db()
+        # connector
+        cursor = db.cursor()
+        cursor.execute(f"SELECT * FROM {table_name}")
+        tables = cursor.fetchall()
+        cursor.close()
+        return jsonify({"selected_tables" : tables})
+    except Exception as e:
+        return jsonify({"error" : str(e)})
+
+

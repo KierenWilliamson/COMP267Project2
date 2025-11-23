@@ -14,14 +14,8 @@ DB_NAME=Comp267
 API_URL=http://127.0.0.1:5000
 ```
 
-3) Find the mysql script under src/sql/tablecreation.sql and use it to create a DB in MySQL Workbench
-4) Run the following commands, one terminal for each command
-```
-src\api\db_api.py
-```
-In a different terminal run:
-```
-src\main.py
+3) Find the mysql script under src/sql/tablewithsampledata.sql and use it to create a DB in MySQL Workbench
+
 ```
 
 ### Prerequisites

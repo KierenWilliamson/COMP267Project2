@@ -2,20 +2,20 @@ import os
 import tkinter.messagebox as tkmb
 from tkinter import Menu
 import customtkinter as ctk
-from api.app import app as api_app
+from api.app import flask_app as api_app
 from api import database
 
 # Windows
 app = ctk.CTk()
 app.geometry("400x400")
 app.title("Government Website Database Landing")
-#app.attributes("-topmost", 1)
-#app.attributes("-fullscreen", True)
+app.attributes("-topmost", 1)
+app.attributes("-fullscreen", True)
 
 # sanple API request
-with api_app.test_client() as client:
-    response = client.post("/tables/gov_website",json={"columns": ["name", "url"],"rows": [["Test site", "https://example.com"],["Another site", "https://xyz.com"]]})
-    print(response.get_json())
+# with api_app.test_client() as client:
+#     response = client.post("/tables/gov_website",json={"columns": ["name", "url"],"rows": [["Test site", "https://example.com"],["Another site", "https://xyz.com"]]})
+#     print(response.get_json())
 
 
 # COMMANDS / FUNCTIONS
