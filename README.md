@@ -14,8 +14,8 @@ DB_NAME=Comp267
 API_URL=http://127.0.0.1:5000
 ```
 
-3) Find the mysql script under src/sql/tablewithsampledata.sql and use it to create a DB in MySQL Workbench
-
+3) Find the mysql script under src/sql/tablewithsampledata.sql and use it to create a DB in MySQL Workbench. Ensure that the MySQL80 service is running as well.
+4) 
 ```
 
 ### Prerequisites

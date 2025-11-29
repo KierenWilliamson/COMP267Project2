@@ -17,7 +17,6 @@ x = (screen_width - 1200) // 2
 y = (screen_height - 800) // 2
 app.geometry(f"1200x800+{x}+{y}")
 
-
 # COMMANDS / FUNCTIONS
 def login():
     '''
@@ -344,7 +343,7 @@ def read_data(dashboard_window):
 
         try:
             with api_app.test_client() as client:
-                response = client.get(f"/select/{table}")
+                response = client.get(f"/tables/{table}")
                 result = response.get_json()
 
                 if response.status_code == 200:
