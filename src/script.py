@@ -13,9 +13,9 @@ app.attributes("-topmost", 1)
 app.attributes("-fullscreen", True)
 
 # sanple API request
-# with api_app.test_client() as client:
-#     response = client.post("/tables/gov_website",json={"columns": ["name", "url"],"rows": [["Test site", "https://example.com"],["Another site", "https://xyz.com"]]})
-#     print(response.get_json())
+with api_app.test_client() as client:
+    response = client.put("/tables/gov_website",json={"columns": ["name", "url"],"values": [], "where": ""})
+    print(response.get_json())
 
 
 # COMMANDS / FUNCTIONS

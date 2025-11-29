@@ -58,7 +58,7 @@ def insert_into_table(table_name):
         # Get real table columns
         cursor.execute(f"DESCRIBE {table_name}")
         # table_info = cursor.fetchall()
-        valid_columns = [col[0] for col in {{cursor.fetchall()}}]
+        valid_columns = [col[0] for col in cursor.fetchall()]
         cursor.close()
 
         # Ensure client-sent columns exist
@@ -81,6 +81,7 @@ def insert_into_table(table_name):
     except Exception as e:
         return jsonify({"error": str(e)})
 
+# FIXME: change route to /tables/<table_name>
 @bp.route("/select/<table_name>", methods=["GET"])
 def select_table(table_name):
     '''
@@ -99,4 +100,73 @@ def select_table(table_name):
     except Exception as e:
         return jsonify({"error" : str(e)})
 
+# update table endpoint
+# IN: Table name, column names, and new data values, and Where condition
+# OUT: void
+@bp.route("/tables/<table_name>", method=["PUT"])
+def update_table(table_name):
+    '''
+    Performs the operation:\n
+    UPDATE (Table)\n
+    SET column1 = value1, column2 = . . .\n
+    WHERE (condition)\n
+    \n
+    input data should be in the form of:\n
+    json={"columns": ["column1", "column2", . . .], "values": ["value1", "value2", . . .], "where": "condition"}
+    '''
+    try:
+        db = database.init_db()
+        cursor = db.cursor()
 
+        data = request.get_json()
+
+        columns = data.get("columns") #list
+        values = data.get("values")  #list
+        where_condition = data.get("where") #string
+
+        if not columns or not values or not where_condition:
+            return jsonify({"error": "Missing 'columns' or 'rows' or 'where' condition"}), 400
+
+        # Get real table columns
+        cursor.execute(f"DESCRIBE {table_name}")
+        # table_info = cursor.fetchall()
+        valid_columns = [col[0] for col in cursor.fetchall()]
+        cursor.close()
+
+        # Ensure client-sent columns exist
+        for col in columns:
+            if col not in valid_columns:
+                return jsonify({"error": f"Invalid column name: {col}"}), 400
+        
+        # Ensure each column has an associated value
+        if len(columns) != len(values):
+            return jsonify({"error":
+                f"Disproportionate number of columns to values, {columns} columns and {values} values"}), 400
+
+        # Build SQL safely
+        set_list = ""
+        for i in range(len(columns)):
+            if i == len(columns) -1:
+                set_list += f"{columns[i]} = {values[i]}"
+            set_list += f"{columns[i]} = {values[i]},"
+
+        sql = f"UPDATE {table_name} SET {set_list} WHERE {where_condition};"
+
+        db.cursor().execute(sql)
+        db.commit()
+
+        return jsonify({"message": f"{cursor.rowcount} rows updated successfully"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+# delete row from table
+# IN: table name, WHERE condition
+# OUT: void
+#
+# create count endpoint
+# IN: table name, column name
+# OUT: returns the record count associated with teh specified column
+# 
+# create view table
+# IN: view name, columns, table name
+# OUT: void
