@@ -1,1 +1,5 @@
 .env
+src/.DS_Store
+src/api/.DS_Store
+.DS_Store
+.idea/
