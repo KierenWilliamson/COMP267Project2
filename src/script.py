@@ -9,14 +9,6 @@ app = ctk.CTk()
 app.geometry("1200x800")
 app.title("Government Website Database Landing")
 app.attributes("-topmost", 1)
-<<<<<<< HEAD
-app.attributes("-fullscreen", True)
-
-# sanple API request
-with api_app.test_client() as client:
-    response = client.put("/tables/gov_website",json={"columns": ["name", "url"],"values": [], "where": ""})
-    print(response.get_json())
-=======
 # Center the window on screen
 app.update_idletasks()
 screen_width = app.winfo_screenwidth()
@@ -24,7 +16,6 @@ screen_height = app.winfo_screenheight()
 x = (screen_width - 1200) // 2
 y = (screen_height - 800) // 2
 app.geometry(f"1200x800+{x}+{y}")
->>>>>>> e68882005ffea8903140f3bfb07672b73bdf0e96
 
 
 # COMMANDS / FUNCTIONS
