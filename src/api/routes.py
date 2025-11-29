@@ -88,8 +88,7 @@ def insert_into_table(table_name):
         return jsonify({"error": str(e)}), 500
 
 
-# FIXME: change route to /tables/<table_name>
-@bp.route("/select/<table_name>", methods=["GET"])
+@bp.route("/tables/<table_name>", methods=["GET"])
 def select_table(table_name):
     '''
     Performs the operation:\n
@@ -110,7 +109,7 @@ def select_table(table_name):
 # update table endpoint
 # IN: Table name, column names, and new data values, and Where condition
 # OUT: void
-@bp.route("/tables/<table_name>", method=["PUT"])
+@bp.route("/tables/<table_name>", methods=["PUT"])
 def update_table(table_name):
     '''
     Performs the operation:\n
@@ -122,58 +121,168 @@ def update_table(table_name):
     json={"columns": ["column1", "column2", . . .], "values": ["value1", "value2", . . .], "where": "condition"}
     '''
     try:
-        db = database.init_db()
+        db = database.get_fresh_connection()
         cursor = db.cursor()
 
         data = request.get_json()
 
-        columns = data.get("columns") #list
-        values = data.get("values")  #list
-        where_condition = data.get("where") #string
+        columns = data.get("columns")   # list
+        values  = data.get("values")    # list
+        where   = data.get("where")     # dict ex: {"id": 5}
 
-        if not columns or not values or not where_condition:
-            return jsonify({"error": "Missing 'columns' or 'rows' or 'where' condition"}), 400
+        # Validate
+        if not columns or not values or not where:
+            return jsonify({"error": "Missing data"}), 400
 
-        # Get real table columns
-        cursor.execute(f"DESCRIBE {table_name}")
-        # table_info = cursor.fetchall()
-        valid_columns = [col[0] for col in cursor.fetchall()]
-        cursor.close()
-
-        # Ensure client-sent columns exist
-        for col in columns:
-            if col not in valid_columns:
-                return jsonify({"error": f"Invalid column name: {col}"}), 400
-        
-        # Ensure each column has an associated value
         if len(columns) != len(values):
-            return jsonify({"error":
-                f"Disproportionate number of columns to values, {columns} columns and {values} values"}), 400
+            return jsonify({"error": "Columns and values length mismatch"}), 400
 
-        # Build SQL safely
-        set_list = ""
-        for i in range(len(columns)):
-            if i == len(columns) -1:
-                set_list += f"{columns[i]} = {values[i]}"
-            set_list += f"{columns[i]} = {values[i]},"
+        # Build SET clause
+        set_clause = ", ".join([f"{col} = %s" for col in columns])
 
-        sql = f"UPDATE {table_name} SET {set_list} WHERE {where_condition};"
+        # Build WHERE clause safely
+        where_cols = list(where.keys())
+        where_vals = list(where.values())
 
-        db.cursor().execute(sql)
+        where_clause = " AND ".join([f"{col} = %s" for col in where_cols])
+
+        sql = f"UPDATE {table_name} SET {set_clause} WHERE {where_clause};"
+
+        params = values + where_vals
+
+        cursor.execute(sql, params)
         db.commit()
 
-        return jsonify({"message": f"{cursor.rowcount} rows updated successfully"})
+        rows = cursor.rowcount
+        cursor.close()
+        db.close()
+
+        return jsonify({"message": f"{rows} rows updated successfully"})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error" : str(e)})
+
     
 # delete row from table
 # IN: table name, WHERE condition
 # OUT: void
-#
+@bp.route("/tables/<table_name>", methods=["DELETE"])
+def delete_row(table_name):
+    '''
+    Performs the operation:\n
+    DELETE FROM (Table) WHERE (condition)\n
+    DELETE /tables/<table>\n
+    JSON: { "where": { "col": value } }
+    '''
+    try:
+        data = request.get_json()
+        where = data.get("where")
+
+        if not where or not isinstance(where, dict):
+            return jsonify({"error": "'where' must be an object"}), 400
+
+        db = database.get_fresh_connection()
+        cursor = db.cursor()
+
+        # Validate columns
+        cursor.execute(f"DESCRIBE {table_name}")
+        valid_cols = [col[0] for col in cursor.fetchall()]
+
+        for col in where.keys():
+            if col not in valid_cols:
+                return jsonify({"error": f"Invalid column in WHERE: {col}"}), 400
+
+        # Build WHERE clause
+        where_clause = " AND ".join([f"{col} = %s" for col in where])
+        where_vals = list(where.values())
+
+        sql = f"DELETE FROM {table_name} WHERE {where_clause};"
+        cursor.execute(sql, where_vals)
+        db.commit()
+
+        rows = cursor.rowcount
+        cursor.close()
+        db.close()
+
+        return jsonify({"deleted": rows}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # create count endpoint
 # IN: table name, column name
-# OUT: returns the record count associated with teh specified column
-# 
+# OUT: returns the record count associated with the specified column
+@bp.route("/tables/<table_name>/count/<column_name>", methods=["GET"])
+def count_column(table_name, column_name):
+    '''
+    call to this endpoint should look like this:\n
+    GET /tables/<table>/count/<column>
+    '''
+    try:
+        db = database.get_fresh_connection()
+        cursor = db.cursor()
+
+        # Validate column exists
+        cursor.execute(f"DESCRIBE {table_name}")
+        valid_cols = [col[0] for col in cursor.fetchall()]
+
+        if column_name not in valid_cols:
+            return jsonify({"error": f"Invalid column: {column_name}"}), 400
+        
+        sql = f"SELECT COUNT({column_name}) FROM {table_name};"
+        cursor.execute(sql)
+        count = cursor.fetchone()[0]
+
+        cursor.close()
+        db.close()
+
+        return jsonify({"count": count}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # create view table
 # IN: view name, columns, table name
 # OUT: void
+@bp.route("/views", methods=["POST"])
+def create_view():
+    '''
+    Call to this endpoint should look like this:\n
+    POST /views\n
+    JSON: { "view": "...", "table": "...", "columns": ["a","b"] }
+
+    '''
+    try:
+        data = request.get_json()
+
+        view_name = data.get("view")
+        table_name = data.get("table")
+        columns = data.get("columns", [])
+
+        if not view_name or not table_name or not columns:
+            return jsonify({"error": "Missing view, table, or columns"}), 400
+        
+        db = database.get_fresh_connection()
+        cursor = db.cursor()
+
+        # Validate column names
+        cursor.execute(f"DESCRIBE {table_name}")
+        valid_cols = [col[0] for col in cursor.fetchall()]
+
+        for col in columns:
+            if col not in valid_cols:
+                return jsonify({"error": f"Column '{col}' does not exist"}), 400
+
+        col_list = ", ".join(columns)
+
+        sql = f"CREATE VIEW {view_name} AS SELECT {col_list} FROM {table_name};"
+        cursor.execute(sql)
+        db.commit()
+
+        cursor.close()
+        db.close()
+
+        return jsonify({"message": f"View '{view_name}' created"}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
