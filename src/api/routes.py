@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 from api import database
 
-
 bp = Blueprint('routes', __name__)
+
 
 # GET all tables
 @bp.route("/tables", methods=["GET"])
@@ -21,6 +21,7 @@ def get_tables():
         return jsonify({"tables": tables})
     except Exception as e:
         return jsonify({"error": str(e)})
+
 
 # GET all gov websites
 @bp.route("/websites", methods=["GET"])
@@ -41,6 +42,7 @@ def get_websites():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+
 @bp.route("/tables/<table_name>", methods=["POST"])
 def insert_into_table(table_name):
     try:
@@ -57,9 +59,8 @@ def insert_into_table(table_name):
 
         # Get real table columns
         cursor.execute(f"DESCRIBE {table_name}")
-        # table_info = cursor.fetchall()
+        # FIX: Remove extra curly braces
         valid_columns = [col[0] for col in cursor.fetchall()]
-        cursor.close()
 
         # Ensure client-sent columns exist
         for col in columns:
@@ -72,31 +73,37 @@ def insert_into_table(table_name):
 
         sql = f"INSERT IGNORE INTO {table_name} ({column_list}) VALUES ({placeholders})"
 
-        db.cursor().executemany(sql, rows)
+        # FIX: Use the same cursor for executemany
+        cursor.executemany(sql, rows)
+
+        # FIX: Get rowcount before closing cursor
+        rows_inserted = cursor.rowcount
 
         db.commit()
+        cursor.close()
 
-        return jsonify({"message": f"{cursor.rowcount} rows inserted successfully"})
+        return jsonify({"message": f"{rows_inserted} rows inserted successfully"})
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
+
 
 # FIXME: change route to /tables/<table_name>
 @bp.route("/select/<table_name>", methods=["GET"])
 def select_table(table_name):
     '''
-    Performs the operation:\n 
-    SELECT(expression){Table} 
+    Performs the operation:\n
+    SELECT(expression){Table}
     '''
     try:
-        # initialize the database
-        db = database.init_db()
-        # connector
+        # Get a fresh connection to ensure we read the latest data
+        db = database.get_fresh_connection()
         cursor = db.cursor()
         cursor.execute(f"SELECT * FROM {table_name}")
         tables = cursor.fetchall()
         cursor.close()
-        return jsonify({"selected_tables" : tables})
+        db.close()  # Close the fresh connection
+        return jsonify({"selected_tables": tables})
     except Exception as e:
         return jsonify({"error" : str(e)})
 
